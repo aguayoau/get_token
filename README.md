@@ -12,10 +12,15 @@ We will create an IAM user with no policy attached and a 2 factor authenticathio
 
 ## Detailed instructions.
 
-1. Create an IAM role and attach the desired policies. You can create the role following the instructions in this link: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user.html#roles-creatingrole-user-console
+### Step 1
+Create an IAM role and attach the desired policies. You can create the role following the instructions in this link: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_create_for-user.html#roles-creatingrole-user-console
 
-2. Create a IAM group and attach the inline policies: AdminMFAPolicy and AllowAssumeAdminMFAPolicy. In the policy AllowAssumeAdminMFAPolicy replace "<role ARN>" with the role ARN you just created in the previous step.
+### Step 2
+Create a IAM group and attach the inline policies: AdminMFAPolicy and AllowAssumeAdminMFAPolicy. In the policy AllowAssumeAdminMFAPolicy replace "<role ARN>" with the role ARN you just created in the previous step.
 
-Create a IAM user with only programatic access. You can find intructions in this link: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html#id_users_create_console
+### Step 3
+Create a IAM user with only programatic access and asign it to the IAM group created in step 2. Don't forget to store your Access key ID and Secret access key. You will need them to request the temporary token. 
+You can find intructions in this link: https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html#id_users_create_console
 
-2. 
+### Step 4
+Enable MFA au
