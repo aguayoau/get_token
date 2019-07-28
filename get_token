@@ -1,0 +1,20 @@
+ROLE=arn:aws:iam::<account>:role/<rolename>
+SERIAL=arn:aws:iam::<account>:mfa/<username>
+
+
+if [ $1 ]; then
+	#CREDENTIALS=$(aws sts assume-role --role-arn $ROLE --duration-seconds 16200 --role-session-name "Session1")
+	CREDENTIALS=$(aws sts get-session-token --duration-seconds 16200 --serial-number $SERIAL --token-code $1)
+	export AWS_ACCESS_KEY_ID=$(echo $CREDENTIALS | jq '.Credentials.AccessKeyId' | sed 's#"##g')
+	export AWS_SECRET_ACCESS_KEY=$(echo $CREDENTIALS | jq '.Credentials.SecretAccessKey' | sed 's#"##g')
+	export AWS_SESSION_TOKEN=$(echo $CREDENTIALS | jq '.Credentials.SessionToken' | sed 's#"##g')
+	echo "export "$AWS_ACCESS_KEY_ID
+	echo "export "$AWS_SECRET_ACCESS_KEY
+	echo "export "$AWS_SESSION_TOKEN
+	echo "Your token expires at $(echo $CREDENTIALS | jq '.Credentials.Expiration' | sed 's#"##g')"
+else
+	echo "please add the current code. Don't forget to source this file"
+	unset AWS_ACCESS_KEY_ID
+	unset AWS_SECRET_ACCESS_KEY
+	unset AWS_SESSION_TOKEN
+fi
