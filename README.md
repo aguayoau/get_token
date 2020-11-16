@@ -10,6 +10,8 @@ This project is based in the blog https://www.jeffgeerling.com/blog/2018/getting
 
 We will create an IAM user with no policy attached and a 2 factor authenticathion enable. Then this user will be assigned to a group with two policies. One that enforces the MFA and a another that asign the user to an IAM role with all the desired privilegues. 
 
+I have included in this project a cloud formation template called mfa-template.json that creates one user, one role, and one group. The only remaining thing is to register a MFA device and create an acceess key
+
 ## Detailed instructions.
 
 ### Step 1
