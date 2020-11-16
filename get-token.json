@@ -1,0 +1,136 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Glue Example",
+    "Parameters": {
+        "CliUserName": {
+            "Description": "the CLI User with no privileges",
+            "Type": "String",
+            "Default": "kevin"
+        },
+        "MinionGroupName": {
+            "Description": "This group will allow the users with no privileges get the policies",
+            "Type": "String",
+            "Default": "minions"
+        },
+        "MasterRoleName": {
+            "Description": "This is the role to be use with all the necesary privileges",
+            "Type": "String",
+            "Default": "gru"
+        }
+    },
+    "Resources": {
+        "MasterRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "RoleName": {
+                    "Ref": "MasterRoleName"
+                },
+                "Description": "Master role to be assumed ",
+                "ManagedPolicyArns": [
+                    "arn:aws:iam::aws:policy/AdministratorAccess"
+                ],
+                "MaxSessionDuration": 3600,
+                "Path": "/",
+                "Policies": [],
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "AWS": {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            "arn:aws:iam::",
+                                            {
+                                                "Ref": "AWS::AccountId"
+                                            },
+                                            ":root"
+                                        ]
+                                    ]
+                                }
+                            },
+                            "Action": "sts:AssumeRole",
+                            "Condition": {
+                                "Bool": {
+                                    "aws:MultiFactorAuthPresent": "true"
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        },
+        "MinionGroup": {
+            "Type": "AWS::IAM::Group",
+            "Properties": {
+                "GroupName": {
+                    "Ref": "MinionGroupName"
+                },
+                "ManagedPolicyArns": [],
+                "Path": "/",
+                "Policies": [
+                    {
+                        "PolicyName": "AdminMFAPolicy",
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": {
+                                "Condition": {
+                                    "Bool": {
+                                        "aws:MultiFactorAuthPresent": "true"
+                                    }
+                                },
+                                "Action": "*",
+                                "Resource": "*",
+                                "Effect": "Allow",
+                                "Sid": "AllowAdminUserToDoAnythingIfMFAIsPresent"
+                            }
+                        }
+                    },
+                    {
+                        "PolicyName": "AllowAssumeAdminMFAPolicy",
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": {
+                                "Action": "sts:AssumeRole",
+                                "Resource": {
+                                    "Fn::Join": [
+                                        "",
+                                        [
+                                            "arn:aws:iam::",
+                                            {
+                                                "Ref": "AWS::AccountId"
+                                            },
+                                            ":role/",
+                                            {
+                                                "Ref": "MasterRoleName"
+                                            }
+                                        ]
+                                    ]
+                                },
+                                "Effect": "Allow",
+                                "Sid": "AllowUserToAssumeAdminMFARole"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        "CliUser": {
+            "Type": "AWS::IAM::User",
+            "Properties": {
+                "Groups": [
+                    {
+                        "Ref": "MinionGroup"
+                    }
+                ],
+                "Path": "/",
+                "UserName": {
+                    "Ref": "CliUserName"
+                }
+            }
+        }
+    },
+    "Outputs": {}
+}
